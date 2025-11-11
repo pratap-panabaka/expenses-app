@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* -----------------------------------------
+   🎨 Theme Tokens (Tailwind v4 @theme)
+   - Only custom properties and @keyframes allowed
+----------------------------------------- */
+@theme {
+  /* Colors */
+  --color-color-1: #ddf2fd;
+  --color-color-2: #c0d684;
+  --color-color-3: #ed6a5a;
+  --color-color-4: #164863;
+  --color-color-5: #fffbf7;
+
+  /* Font Sizes — limited list for maintainability */
+  --text-14: 14px;
+  --text-16: 16px;
+  --text-18: 18px;
+  --text-20: 20px;
+  --text-24: 24px;
+  --text-28: 28px;
+  --text-32: 32px;
+  --text-36: 36px;
+  --text-40: 40px;
+  --text-48: 48px;
+  --text-56: 56px;
+  --text-64: 64px;
+  --text-72: 72px;
+  --text-80: 80px;
+  --text-96: 96px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* -----------------------------------------
+   🧩 Components Layer
+----------------------------------------- */
+@layer components {
+  .btn {
+    @apply 
+      inline-flex items-center justify-center gap-x-2 cursor-pointer font-bold uppercase
+      border border-transparent rounded-lg focus:outline-none transition-colors duration-200
+      bg-color-4 text-white hover:bg-color-3
+      text-18 py-1 px-2
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  .form-input {
+    @apply appearance-none p-2 text-color-4 caret-color-4 border-b border-t-0 border-l-0 border-r-0 border-color-4 rounded-none bg-color-5 focus:outline-none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* -----------------------------------------
+   ⚙️ Base Layer
+----------------------------------------- */
+@layer base {
+  html {
+    font-size: 18px;
+    font-family: "kanit", sans-serif;
+  }
+
+  a {
+    cursor: pointer;
+  }
+
+  strong {
+    @apply text-color-4;
+  }
 }
