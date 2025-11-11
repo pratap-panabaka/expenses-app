@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -23,6 +26,7 @@ const Page = () => {
                 setEmail("");
                 setPassword("");
                 setError(null);
+                router.push("/");
             }
         } catch (error: any) {
             console.log(error);
@@ -57,8 +61,9 @@ const Page = () => {
                 />
                 <button type="submit" className="btn">Login</button>
                 {error && <p className="text-color-4">{error}</p>}
+                <p className="text-color-4 flex justify-end w-full">Want to Sign Up?<span><a className="text-color-3" onClick={() => router.push("/signup")}>Go to Sign Up Page</a></span></p>
             </form>
-        </main>
+        </main >
     );
 };
 
