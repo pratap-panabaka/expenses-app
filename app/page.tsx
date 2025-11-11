@@ -1,7 +1,5 @@
-import About from "./ui/about";
-
 const Home = () => (
-  <About />
+  <h1>Welcome</h1>
 )
 
 export default Home;

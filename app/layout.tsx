@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
-import Navbar from "./ui/navbar";
 import "./globals.css";
 
 // Import Kanit font
@@ -11,7 +10,7 @@ const kanit = Kanit({
 });
 
 export const metadata: Metadata = {
-  title: "PRATAP PANABAKA",
+  title: "Expenses App",
   description: "PRATAP PANABAKA Portfolio Project",
 };
 
@@ -26,7 +25,6 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body className={`${kanit.variable} antialiased`}>
-        <Navbar />
         {children}
       </body>
     </html>
