@@ -4,6 +4,7 @@ import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
 
 type User = {
+    id: number,
     email: string,
     password: string,
 }
@@ -24,6 +25,7 @@ export const POST = async (req: Request) => {
 
     const payload = {
         email,
+        id: user.id,
     }
 
     const protectedHeader = {

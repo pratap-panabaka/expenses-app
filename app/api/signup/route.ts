@@ -17,8 +17,10 @@ export const POST = async (req: Request) => {
 
   const stmt = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
 
+  let id;
   try {
-    stmt.run(email, hashedPassword);
+    const result = stmt.run(email, hashedPassword);
+    id = result.lastInsertRowid;
   } catch (err: any) {
     if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return NextResponse.json(
@@ -33,6 +35,7 @@ export const POST = async (req: Request) => {
 
   const payload = {
     email,
+    id,
   }
 
   const protectedHeader = {

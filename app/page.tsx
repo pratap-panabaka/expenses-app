@@ -1,5 +1,6 @@
 "use client";
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Expenses from "./ui/expenses";
@@ -35,6 +36,8 @@ const Home = () => {
     router.push("/login");
   };
 
+  const queryClient = new QueryClient();
+
   return (
     <>
       <header className="bg-color-4 w-full items-center justify-center h-12 flex">
@@ -46,7 +49,9 @@ const Home = () => {
           </div>
         </nav>
       </header>
-      <Expenses />
+      <QueryClientProvider client={queryClient}>
+        <Expenses />
+      </QueryClientProvider>
     </>
   );
 };
