@@ -1,69 +1,51 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import db from "@/app/lib/db";
-import { signJWT } from "@/app/lib/jwt";
+import bcrypt from "bcryptjs";
+import { SignJWT } from "jose";
+import { NextResponse } from "next/server";
 
 type User = {
-    id: number;
-    email: string;
-    password: string;
-};
+    email: string,
+    password: string,
+}
 
 export const POST = async (req: Request) => {
-    try {
-        const { email, password } = await req.json();
+    const { email, password } = await req.json();
 
-        // ✅ Validate input
-        if (!email || !password) {
-            return NextResponse.json(
-                { error: "Missing email or password" },
-                { status: 400 }
-            );
-        }
+    const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
+    const user = stmt.get(email) as User;
 
-        // ✅ Get user by email
-        const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
-        const user = stmt.get(email) as User | undefined;
+    const check = await bcrypt.compare(password, user.password);
 
-        if (!user) {
-            return NextResponse.json(
-                { error: "Invalid email or password" },
-                { status: 401 }
-            );
-        }
+    const res = NextResponse.json({
+        message: "User logged in successfully",
+    });
 
-        // ✅ Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return NextResponse.json(
-                { error: "Invalid email or password" },
-                { status: 401 }
-            );
-        }
+    const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
-        // ✅ Generate JWT (async!)
-        const token = await signJWT({ email: user.email });
+    const payload = {
+        email,
+    }
 
-        // ✅ Create response
-        const res = NextResponse.json({
-            message: "User logged in successfully",
-        });
+    const protectedHeader = {
+        alg: 'HS256',
+        typ: 'JWT',
+    };
 
-        // ✅ Set secure, HTTP-only cookie
-        res.cookies.set("token", token, {
+    const jwt = await new SignJWT(payload)
+        .setProtectedHeader(protectedHeader)
+        .setIssuedAt()
+        .setExpirationTime('1d')
+        .sign(SECRET_KEY);
+
+    if (check) {
+        res.cookies.set("token", jwt, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            path: "/", // Make cookie available app-wide
-            maxAge: 60 * 60 * 24, // 1 day
+            maxAge: 60 * 60 * 24 * 1,
+            path: "/",
         });
-
-        return res;
-    } catch (err) {
-        console.error("Login error:", err);
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
     }
-};
+
+    return res;
+}

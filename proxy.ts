@@ -1,30 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyJWT } from "@/app/lib/jwt";
+import { jwtVerify } from "jose";
 
 export default async function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const url = req.nextUrl.clone();
 
-  // ----- Redirect logged-in users away from public pages -----
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
   if (url.pathname === "/login" || url.pathname === "/signup") {
     if (token) {
       try {
-        const payload = await verifyJWT(token);
+        const { payload } = await jwtVerify(token, secret, {
+          algorithms: ['HS256'],
+          maxTokenAge: '1d',
+        });
         if (payload) {
+          console.log(payload);
           return NextResponse.redirect(new URL("/", req.url));
         }
       } catch (err) {
-        // Token invalid or expired, allow access to login/signup
+
       }
     }
   }
 
-  // ----- Protect private routes -----
   if (url.pathname !== "/login" && url.pathname !== "/signup") {
     if (!token) return NextResponse.redirect(new URL("/login", req.url));
     try {
-      const payload = await verifyJWT(token);
+      const { payload } = await jwtVerify(token, secret, {
+        algorithms: ['HS256'],
+        maxTokenAge: '1d',
+      });
       if (!payload) return NextResponse.redirect(new URL("/login", req.url));
     } catch (err) {
       return NextResponse.redirect(new URL("/login", req.url));
@@ -35,5 +42,5 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/signup"], // include public & private routes
+  matcher: ["/", "/login", "/signup"],
 };
