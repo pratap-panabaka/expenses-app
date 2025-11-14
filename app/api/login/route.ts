@@ -15,7 +15,14 @@ export const POST = async (req: Request) => {
     const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
     const user = stmt.get(email) as User;
 
-    const check = await bcrypt.compare(password, user.password);
+    try {
+        const check = await bcrypt.compare(password, user.password);
+        if (!check) {
+            return NextResponse.json({ error: "Invalid password" });
+        }
+    } catch (error) {
+        return NextResponse.json({ error: "User is not registerd yet" });
+    }
 
     const res = NextResponse.json({
         message: "User logged in successfully",
@@ -39,15 +46,13 @@ export const POST = async (req: Request) => {
         .setExpirationTime('1d')
         .sign(SECRET_KEY);
 
-    if (check) {
-        res.cookies.set("token", jwt, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 60 * 60 * 24 * 1,
-            path: "/",
-        });
-    }
+    res.cookies.set("token", jwt, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 1,
+        path: "/",
+    });
 
     return res;
 }
