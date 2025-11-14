@@ -20,7 +20,6 @@ export const GET = async () => {
             maxTokenAge: '1d',
         });
         payload = verified.payload;
-        console.log(verified, 'userId');
     } catch (err) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
