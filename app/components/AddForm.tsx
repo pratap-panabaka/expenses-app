@@ -34,6 +34,7 @@ export default function AddForm({ onClose }: { onClose: () => void }) {
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 required
+                autoFocus
             />
 
             <input

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDeleteExpense } from "../hooks/useDeleteExpense";
 import { useExpenses } from "../hooks/useExpense";
 import AddForm from "./AddForm";
@@ -21,6 +21,20 @@ export default function ExpensesPage() {
         description: string;
     } | null>(null);
 
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setModalOpen(false);
+            }
+        };
+
+        window.addEventListener("keydown", handler);
+
+        return () => {
+            window.removeEventListener("keydown", handler);
+        };
+    }, []);
+
     const openAdd = () => {
         setEditing(false);
         setSelected(null);
@@ -39,11 +53,11 @@ export default function ExpensesPage() {
 
     return (
         <main className="p-4 min-h-[calc(100vh-64px)]">
-            <div className="flex items-center justify-center gap-5 mb-4">
+            <div className="flex items-baseline justify-center gap-5">
                 <h1 className="text-2xl font-bold text-color-4">EXPENSES</h1>
 
-                <button onClick={openAdd} className="text-blue-500 cursor-pointer">
-                    Add Expense
+                <button onClick={openAdd} className="text-blue-500 cursor-pointer font-bold text-baseline">
+                    ADD EXPENSE
                 </button>
             </div>
 

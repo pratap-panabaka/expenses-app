@@ -1,13 +1,12 @@
-import Providers from "@/app/providers";
 import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
+import Providers from "@/app/providers";
 import "./globals.css";
 
-// Import Kanit font
 const kanit = Kanit({
   subsets: ["latin"],
   variable: "--font-kanit",
-  weight: ["300", "400", "500", "600", "700"], // optional: pick weights you’ll actually use
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
