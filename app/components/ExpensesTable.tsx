@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Expense } from "../types";
 import formatLocalDateTime from "../lib/dateFormat";
 import { useExpenses } from "../hooks/useExpense";
+import intToWords from "../lib/intToWords";
 
 export default function ExpensesTable({
     expenses,
@@ -25,6 +26,7 @@ export default function ExpensesTable({
     };
 
     const { data: displayedExpenses = [] } = useExpenses(getSortKey());
+    const total = displayedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
     const toggleSort = (field: "id" | "desc" | "amt") => {
         if (sortField === field) {
@@ -41,7 +43,7 @@ export default function ExpensesTable({
             <div className="overflow-x-auto max-w-6xl w-full">
                 <div className="w-full text-center text-red-500 py-2">
                     Please note that this App is just for demo purpose,
-                    Eventhough you are able to sign up and store the data,
+                    Even though you are able to sign up and store the data,
                     the database will be cleared regularly.
                 </div>
                 <div className="flex justify-end w-full">
@@ -119,6 +121,19 @@ export default function ExpensesTable({
                                 )}
                             </tr>
                         ))}
+                        <tr className="border-t border-gray-400 font-bold bg-gray-50">
+                            <td colSpan={2} className="px-4 py-2 border text-right">
+                                Total is {intToWords(total)}
+                            </td>
+                            <td className="px-4 py-2 border text-right">{total}</td>
+                            <td className="px-4 py-2 border">&nbsp;</td>
+                            {timeStampVisible && (
+                                <>
+                                    <td className="px-4 py-2 border">&nbsp;</td>
+                                    <td className="px-4 py-2 border">&nbsp;</td>
+                                </>
+                            )}
+                        </tr>
                     </tbody>
                 </table>
             </div>
