@@ -14,6 +14,7 @@ export default function ExpensesPage() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState(false);
+    const [timeStampVisible, setTimeStampVisible] = useState(false);
 
     const [selected, setSelected] = useState<{
         id: number;
@@ -52,23 +53,35 @@ export default function ExpensesPage() {
     };
 
     return (
-        <main className="p-4 min-h-[calc(100vh-64px)] bg-color-1">
-            <div className="flex items-baseline justify-center gap-5">
-                <h1 className="text-2xl font-bold text-color-4">EXPENSES</h1>
-
-                <button onClick={openAdd} className="text-blue-500 cursor-pointer font-bold text-baseline">
-                    ADD EXPENSE
-                </button>
+        <main className="min-h-[calc(100vh-64px)] bg-color-2">
+            <div className="sticky top-[64px] z-50 h-[100px] flex flex-col justify-center bg-color-1 items-center">
+                <div className="flex items-baseline justify-center gap-5">
+                    <h1 className="text-2xl font-bold text-color-4">EXPENSES</h1>
+                    <button onClick={openAdd} className="text-blue-500 cursor-pointer font-bold text-baseline">
+                        ADD EXPENSE
+                    </button>
+                    <button
+                        className="text-blue-500 cursor-pointer font-bold"
+                        onClick={() => setTimeStampVisible(!timeStampVisible)}
+                    >
+                        {timeStampVisible ? "Hide Time Stamps" : "Show Time Stamps"}
+                    </button>
+                </div>
+                <div className="w-full text-center text-red-500 p-1 text-sm">
+                    Please note that this App is just for demo purpose,
+                    Even though you are able to sign up and store the data,
+                    the database will be cleared regularly.
+                </div>
             </div>
 
-            {isLoading && <p>Loading…</p>}
-            {error && <p className="text-red-500">{error.message}</p>}
+            {isLoading && <p className="text-center w-full">Loading…</p>}
+            {error && <p className="text-red-500 text-center w-full">{error.message}</p>}
 
             {data && (
                 <ExpensesTable
-                    expenses={data}
                     onEdit={openEdit}
                     onDelete={handleDelete}
+                    timeStampVisible={timeStampVisible}
                 />
             )}
 

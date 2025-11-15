@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Expense } from "../types";
 import formatLocalDateTime from "../lib/dateFormat";
 import { useExpenses } from "../hooks/useExpense";
 import intToWords from "../lib/intToWords";
@@ -9,15 +8,14 @@ import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin4Fill } from "react-icons/ri";
 
 export default function ExpensesTable({
-    expenses,
     onEdit,
     onDelete,
+    timeStampVisible,
 }: {
-    expenses: Expense[];
     onEdit: (id: number, amount: number, description: string) => void;
     onDelete: (id: number) => void;
+    timeStampVisible: boolean;
 }) {
-    const [timeStampVisible, setTimeStampVisible] = useState(false);
     const [sortField, setSortField] = useState<"id" | "desc" | "amt">("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -41,104 +39,54 @@ export default function ExpensesTable({
     };
 
     return (
-        <div className="w-full flex flex-col items-center">
-            <div className="overflow-x-auto max-w-6xl w-full">
-                <div className="w-full text-center text-red-500 py-2">
-                    Please note that this App is just for demo purpose,
-                    Even though you are able to sign up and store the data,
-                    the database will be cleared regularly.
-                </div>
-                <div className="flex justify-end w-full">
-                    <button
-                        className="text-blue-400 cursor-pointer font-bold"
-                        onClick={() => setTimeStampVisible(!timeStampVisible)}
-                    >
-                        {timeStampVisible ? "Hide Time Stamps" : "Show Time Stamps"}
-                    </button>
-                </div>
-                <table className="w-full justify-center border border-gray-300 rounded-lg text-color-4">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("id")}>
-                                ID
-                            </th>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("desc")}>
-                                Description
-                            </th>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("amt")}>
-                                Amount
-                            </th>
-                            <th className="px-4 py-2 border">Actions</th>
-                            {timeStampVisible && (
-                                <>
-                                    <th className="px-4 py-2 border whitespace-nowrap text-center">
-                                        Created At
-                                    </th>
-                                    <th className="px-4 py-2 border whitespace-nowrap text-center">
-                                        Updated At
-                                    </th>
-                                </>
-                            )}
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {displayedExpenses.map((exp) => (
-                            <tr key={exp.id} className="border-t border-gray-200">
-                                <td className="px-4 py-2 border whitespace-nowrap text-right">
-                                    {exp.id}
-                                </td>
-                                <td className="px-4 py-2 border">{exp.description}</td>
-                                <td className="px-4 py-2 border text-right">{exp.amount}</td>
-
-                                {/* Actions */}
-                                <td className="px-4 py-2 border">
-                                    <div className="flex justify-center gap-2">
-                                        <button
-                                            className="text-blue-500 cursor-pointer font-bold"
-                                            onClick={() =>
-                                                onEdit(exp.id, exp.amount, exp.description)
-                                            }
-                                        >
-                                            <FaEdit size={24}/>
-                                        </button>
-                                        <button
-                                            className="text-red-500 cursor-pointer font-bold"
-                                            onDoubleClick={() => onDelete(exp.id)}
-                                        >
-                                            <RiDeleteBin4Fill size={24}/>
-                                        </button>
-                                    </div>
-                                </td>
-
-                                {timeStampVisible && (
-                                    <>
-                                        <td className="px-4 py-2 border whitespace-nowrap text-center">
-                                            {formatLocalDateTime(exp.created_at)}
-                                        </td>
-                                        <td className="px-4 py-2 border whitespace-nowrap text-center">
-                                            {formatLocalDateTime(exp.updated_at)}
-                                        </td>
-                                    </>
-                                )}
-                            </tr>
-                        ))}
-                        <tr className="border-t border-gray-400 font-bold bg-gray-50">
-                            <td colSpan={2} className="px-4 py-2 border text-right">
-                                Total is <span className="text-color-3">{intToWords(total)}</span>
+        <div className="w-full justify-center flex items-start">
+            <table className="w-full text-color-4 max-w-6xl">
+                <thead className="bg-gray-100 sticky top-[164px]">
+                    <tr>
+                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("id")}>ID</th>
+                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("desc")}>Description</th>
+                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("amt")}>Amount</th>
+                        <th className="border">Actions</th>
+                        {timeStampVisible && (
+                            <>
+                                <th className="border whitespace-nowrap text-center">Created At</th>
+                                <th className="border whitespace-nowrap text-center">Updated At</th>
+                            </>
+                        )}
+                    </tr>
+                </thead>
+                <tbody>
+                    {displayedExpenses.map((exp) => (
+                        <tr key={exp.id} className="odd:bg-color-5/90 even:bg-color-5 text-white">
+                            <td className="border px-2 text-right align-middle">{exp.id}</td>
+                            <td className="border px-2 align-middle">{exp.description}</td>
+                            <td className="border px-2 text-right align-middle">{exp.amount}</td>
+                            <td className="border">
+                                <div className="flex justify-center items-center gap-2 h-full">
+                                    <button onClick={() => onEdit(exp.id, exp.amount, exp.description)}>
+                                        <FaEdit className="cursor-pointer hover:text-blue-400" size={20} />
+                                    </button>
+                                    <button onDoubleClick={() => onDelete(exp.id)}>
+                                        <RiDeleteBin4Fill className="cursor-pointer hover:text-red-400" size={20} />
+                                    </button>
+                                </div>
                             </td>
-                            <td className="px-4 py-2 border text-right text-color-3 text-lg">{total}</td>
-                            <td className="px-4 py-2 border">&nbsp;</td>
+
                             {timeStampVisible && (
                                 <>
-                                    <td className="px-4 py-2 border">&nbsp;</td>
-                                    <td className="px-4 py-2 border">&nbsp;</td>
+                                    <td className="border p-0 text-center align-middle">
+                                        {formatLocalDateTime(exp.created_at)}
+                                    </td>
+                                    <td className="border p-0 text-center align-middle">
+                                        {formatLocalDateTime(exp.updated_at)}
+                                    </td>
                                 </>
                             )}
                         </tr>
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </table >
+            <div className="bg-black h-[36px] bg-color-4 flex justify-center items-center text-color-1 fixed bottom-0 w-full">Total is &nbsp;<span className="text-color-3 text-lg">{intToWords(total)} &nbsp;</span><span className="text-lg">{total}</span></div >
         </div>
     );
 }

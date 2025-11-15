@@ -2,7 +2,6 @@ import db from "@/app/lib/db";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 
 type User = {
     id: number,

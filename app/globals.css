@@ -7,10 +7,10 @@
 @theme {
   /* Colors */
   --color-color-1: #ddf2fd;
-  --color-color-2: #c0d684;
+  --color-color-2: #62A87C;
   --color-color-3: #ed6a5a;
   --color-color-4: #164863;
-  --color-color-5: #fffbf7;
+  --color-color-5: #663F46;
 
   /* Font Sizes — limited list for maintainability */
   --text-14: 14px;
@@ -70,5 +70,18 @@
 
   strong {
     @apply text-color-4;
+  }
+
+  /* global.css */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari */
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    /* IE 10+ */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }
