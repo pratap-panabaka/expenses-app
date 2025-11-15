@@ -34,11 +34,11 @@ export const useAddExpense = () => {
                     ? [
                         ...old,
                         {
-                            id: Math.random(), // temporary ID
+                            id: undefined,
                             amount: newExpense.amount,
                             description: newExpense.description,
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString(),
+                            created_at: undefined,
+                            updated_at: undefined,
                         },
                     ]
                     : []

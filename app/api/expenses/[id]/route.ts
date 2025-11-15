@@ -79,7 +79,7 @@ export const PATCH = async (
         return NextResponse.json({ error: "Description is required" }, { status: 400 });
     }
 
-    if (amt === undefined || typeof amt !== "number" || amt <= 0) {
+    if (amt === undefined || typeof amt !== "number" || amt < 0) {
         return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
     }
 

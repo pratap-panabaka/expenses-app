@@ -47,15 +47,18 @@ export default function EditForm({
             <input
                 className="form-input"
                 type="number"
+                placeholder="Amount"
                 value={amt}
                 onChange={(e) => setAmt(e.target.value)}
                 required
                 autoFocus
+                min={0}
             />
 
             <input
                 className="form-input"
                 type="text"
+                placeholder="Description"
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 required

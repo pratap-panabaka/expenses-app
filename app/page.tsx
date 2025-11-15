@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ExpensesPage from './components/ExpensesPage';
 import Modal from "./components/Modal";
+import { IoBook } from "react-icons/io5";
+import { VscSignOut } from "react-icons/vsc";
+import Link from "next/link";
 
 const Home = () => {
   const [email, setEmail] = useState<string | null>(null);
@@ -55,12 +58,14 @@ const Home = () => {
 
   return (
     <>
-      <header className="bg-color-4 w-full flex items-center justify-center h-12 sticky top-0 z-50">
+      <header className="bg-color-4 w-full flex items-center justify-center h-[64px] sticky top-0 z-50">
         <nav className="flex items-center justify-between px-5 max-w-6xl w-full">
-          <p className="text-white font-bold">Logo</p>
+          <a href="https://pratap-panabaka.vercel.app" target="_blank" rel="noopener noreferrer">
+            <IoBook className="text-color-1" size={32} />
+          </a>
           <div className="flex gap-2 items-center">
             <p className="text-white">{email}</p>
-            <button onClick={() => setModalOpen(true)} className="btn">Sign Out</button>
+            <button onClick={() => setModalOpen(true)} className="btn"><VscSignOut size={32} /></button>
           </div>
         </nav>
       </header>

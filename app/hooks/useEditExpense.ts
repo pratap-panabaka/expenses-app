@@ -37,7 +37,7 @@ export const useEditExpense = (id: number) => {
                                 ...exp,
                                 amount: update.amt,
                                 description: update.desc,
-                                updated_at: new Date().toISOString(),
+                                updated_at: undefined,
                             }
                             : exp
                     )

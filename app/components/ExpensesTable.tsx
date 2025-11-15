@@ -5,6 +5,8 @@ import { Expense } from "../types";
 import formatLocalDateTime from "../lib/dateFormat";
 import { useExpenses } from "../hooks/useExpense";
 import intToWords from "../lib/intToWords";
+import { FaEdit } from "react-icons/fa";
+import { RiDeleteBin4Fill } from "react-icons/ri";
 
 export default function ExpensesTable({
     expenses,
@@ -54,16 +56,16 @@ export default function ExpensesTable({
                         {timeStampVisible ? "Hide Time Stamps" : "Show Time Stamps"}
                     </button>
                 </div>
-                <table className="w-full justify-center border border-gray-300 rounded-lg">
+                <table className="w-full justify-center border border-gray-300 rounded-lg text-color-4">
                     <thead className="bg-gray-100">
                         <tr>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-400" onClick={() => toggleSort("id")}>
+                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("id")}>
                                 ID
                             </th>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-400" onClick={() => toggleSort("desc")}>
+                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("desc")}>
                                 Description
                             </th>
-                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-400" onClick={() => toggleSort("amt")}>
+                            <th className="px-4 py-2 border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("amt")}>
                                 Amount
                             </th>
                             <th className="px-4 py-2 border">Actions</th>
@@ -98,13 +100,13 @@ export default function ExpensesTable({
                                                 onEdit(exp.id, exp.amount, exp.description)
                                             }
                                         >
-                                            Edit
+                                            <FaEdit size={24}/>
                                         </button>
                                         <button
                                             className="text-red-500 cursor-pointer font-bold"
                                             onDoubleClick={() => onDelete(exp.id)}
                                         >
-                                            Delete
+                                            <RiDeleteBin4Fill size={24}/>
                                         </button>
                                     </div>
                                 </td>
@@ -123,9 +125,9 @@ export default function ExpensesTable({
                         ))}
                         <tr className="border-t border-gray-400 font-bold bg-gray-50">
                             <td colSpan={2} className="px-4 py-2 border text-right">
-                                Total is {intToWords(total)}
+                                Total is <span className="text-color-3">{intToWords(total)}</span>
                             </td>
-                            <td className="px-4 py-2 border text-right">{total}</td>
+                            <td className="px-4 py-2 border text-right text-color-3 text-lg">{total}</td>
                             <td className="px-4 py-2 border">&nbsp;</td>
                             {timeStampVisible && (
                                 <>
