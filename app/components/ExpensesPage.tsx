@@ -53,7 +53,7 @@ export default function ExpensesPage() {
     };
 
     return (
-        <main className="min-h-[calc(100vh-64px)] bg-color-2">
+        <main className="min-h-[calc(100vh-64px)] bg-color-1">
             <div className="sticky top-[64px] z-50 h-[100px] flex flex-col justify-center bg-color-1 items-center">
                 <div className="flex items-baseline justify-center gap-5">
                     <h1 className="text-2xl font-bold text-color-4">EXPENSES</h1>

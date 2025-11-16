@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import formatLocalDateTime from "../lib/dateFormat";
 import { useExpenses } from "../hooks/useExpense";
 import intToWords from "../lib/intToWords";
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin4Fill } from "react-icons/ri";
+import { Saira_Stencil_One } from 'next/font/google';
+
+const spaceGrotesk = Saira_Stencil_One({
+    subsets: ['latin'],
+    variable: "--font-sg",
+    weight: '400',
+});
 
 export default function ExpensesTable({
     onEdit,
@@ -18,6 +25,7 @@ export default function ExpensesTable({
 }) {
     const [sortField, setSortField] = useState<"id" | "desc" | "amt">("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [currency, setCurrency] = useState<string>('');
 
     const getSortKey = () => {
         if (sortField === "id") return sortOrder === "asc" ? "idAsc" : "idDes";
@@ -38,19 +46,36 @@ export default function ExpensesTable({
         }
     };
 
+    useEffect(() => {
+        const getUserCurrency = async (): Promise<void> => {
+            let cur;
+            try {
+                const res = await fetch("https://ipapi.co/json/");
+                const data = await res.json();
+                cur = data.currency || "";
+            } catch (err) {
+                console.error("Could not get currency from API:", err);
+                cur = ""
+            }
+            setCurrency(cur);
+        };
+        getUserCurrency();
+    }, []);
+
+
     return (
         <div className="w-full justify-center flex items-start">
             <table className="w-full text-color-4 max-w-6xl">
-                <thead className="bg-gray-100 sticky top-[164px]">
+                <thead className="bg-color-4 text-color-1 sticky top-[164px]">
                     <tr>
-                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("id")}>ID</th>
-                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("desc")}>Description</th>
-                        <th className="border cursor-pointer hover:bg-gray-200" onClick={() => toggleSort("amt")}>Amount</th>
-                        <th className="border">Actions</th>
+                        <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("id")}>ID</th>
+                        <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("desc")}>Description</th>
+                        <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("amt")}>Amount</th>
+                        <th className="">Actions</th>
                         {timeStampVisible && (
                             <>
-                                <th className="border whitespace-nowrap text-center">Created At</th>
-                                <th className="border whitespace-nowrap text-center">Updated At</th>
+                                <th className="whitespace-nowrap text-center">Created At</th>
+                                <th className="whitespace-nowrap text-center">Updated At</th>
                             </>
                         )}
                     </tr>
@@ -86,7 +111,10 @@ export default function ExpensesTable({
                     ))}
                 </tbody>
             </table >
-            <div className="bg-black h-[36px] bg-color-4 flex justify-center items-center text-color-1 fixed bottom-0 w-full">Total is &nbsp;<span className="text-color-3 text-lg">{intToWords(total)} &nbsp;</span><span className="text-lg">{total}</span></div >
+            <div className={`bg-black 
+            h-[36px] bg-color-4 flex justify-center items-center
+            text-color-1 fixed bottom-0 w-full text-xs sm:text-lg ${spaceGrotesk.className}`}
+            >Total is &nbsp;<span className={"text-color-3"}>{intToWords(total)} &nbsp;</span><span>{total} {currency}</span></div >
         </div>
     );
 }
