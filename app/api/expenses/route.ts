@@ -14,7 +14,7 @@ type ExpenseRow = RowDataPacket & {
     id: number;
     user_id: number;
     description: string;
-    amount: number;
+    amount: string;
 };
 
 type AuthPayload = JWTPayload & {
@@ -87,13 +87,6 @@ export const POST = async (req: Request) => {
     if (typeof description !== "string" || description.trim() === "") {
         return NextResponse.json(
             { error: "Description is required" },
-            { status: 400 }
-        );
-    }
-
-    if (typeof amount !== "number" || amount <= 0) {
-        return NextResponse.json(
-            { error: "Amount must be a positive number" },
             { status: 400 }
         );
     }

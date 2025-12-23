@@ -62,7 +62,6 @@ export default function ExpensesTable({
         getUserCurrency();
     }, []);
 
-
     return (
         <div className="w-full justify-center flex items-start">
             <table className="w-full text-color-4 max-w-6xl">
