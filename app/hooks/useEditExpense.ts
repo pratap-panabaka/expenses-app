@@ -7,10 +7,10 @@ export const useEditExpense = (id: number) => {
     const queryClient = useQueryClient();
 
     return useMutation<
-        Expense,         // returned data type
-        Error,           // error type
-        EditExpense,     // variables passed into mutate()
-        { previous: Expense[] | undefined } // ⭐ context returned by onMutate
+        Expense,                          // returned data
+        Error,                            // error
+        EditExpense,                      // variables
+        { previous: Expense[] | undefined } // context
     >({
         mutationFn: async (payload) => {
             const res = await fetch(`/api/expenses/${id}`, {
@@ -19,11 +19,14 @@ export const useEditExpense = (id: number) => {
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error("Failed to update expense");
+            if (!res.ok) {
+                throw new Error("Failed to update expense");
+            }
+
             return res.json();
         },
 
-        // ⭐ OPTIMISTIC UPDATE
+        // ✅ OPTIMISTIC UPDATE
         onMutate: async (update) => {
             await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
@@ -37,17 +40,17 @@ export const useEditExpense = (id: number) => {
                                 ...exp,
                                 amount: update.amt,
                                 description: update.desc,
-                                updated_at: undefined,
+                                updated_at: new Date().toISOString(), // ✅ string
                             }
                             : exp
                     )
-                    : []
+                    : old
             );
 
-            return { previous }; // ⭐ TS knows context type now
+            return { previous };
         },
 
-        onError: (_err, _data, ctx) => {
+        onError: (_err, _vars, ctx) => {
             if (ctx?.previous) {
                 queryClient.setQueryData(["expenses"], ctx.previous);
             }
