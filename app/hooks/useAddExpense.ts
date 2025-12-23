@@ -3,14 +3,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Expense, NewExpense } from "../types";
 
+type AddExpenseContext = {
+    previous?: Expense[];
+    optimisticId: number;
+};
+
 export const useAddExpense = () => {
     const queryClient = useQueryClient();
 
     return useMutation<
-        Expense,         // TData returned by API
-        Error,           // TError
-        NewExpense,      // TVariables passed to mutate()
-        { previous: Expense[] | undefined } // ⭐ TContext
+        Expense,          // TData (API response)
+        Error,            // TError
+        NewExpense,       // TVariables
+        AddExpenseContext // ✅ TContext
     >({
         mutationFn: async (newExpense) => {
             const res = await fetch("/api/expenses", {
@@ -23,11 +28,11 @@ export const useAddExpense = () => {
             return res.json();
         },
 
+        // ⭐ Optimistic update
         onMutate: async (newExpense) => {
             await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
             const previous = queryClient.getQueryData<Expense[]>(["expenses"]);
-
             const optimisticId = Date.now() * -1;
 
             queryClient.setQueryData<Expense[]>(["expenses"], (old = []) => [
@@ -44,15 +49,24 @@ export const useAddExpense = () => {
             return { previous, optimisticId };
         },
 
-        // ⭐ TYPE-SAFE rollback
-        onError: (_err, _data, ctx) => {
+        // ⭐ Replace optimistic row with real server data
+        onSuccess: (savedExpense, _vars, ctx) => {
+            if (!ctx) return;
+
+            queryClient.setQueryData<Expense[]>(["expenses"], (old = []) =>
+                old.map((expense) =>
+                    expense.id === ctx.optimisticId ? savedExpense : expense
+                )
+            );
+        },
+
+        // ⭐ Rollback on error
+        onError: (_err, _vars, ctx) => {
             if (ctx?.previous) {
                 queryClient.setQueryData(["expenses"], ctx.previous);
             }
         },
 
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["expenses"] });
-        },
+        // ❌ No invalidate needed anymore
     });
 };
