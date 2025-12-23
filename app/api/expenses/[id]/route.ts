@@ -101,13 +101,6 @@ export const PATCH = async (
         );
     }
 
-    if (typeof amt !== "number" || amt < 0) {
-        return NextResponse.json(
-            { error: "Amount must be a positive number" },
-            { status: 400 }
-        );
-    }
-
     const [result] = await db.execute<ResultSetHeader>(
         "UPDATE expenses SET description = ?, amount = ? WHERE user_id = ? AND id = ?",
         [desc, amt, userId, id]
