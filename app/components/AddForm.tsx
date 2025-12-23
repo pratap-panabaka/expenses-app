@@ -29,10 +29,13 @@ export default function AddForm({ onClose }: { onClose: () => void }) {
         <form className="flex flex-col gap-5" onSubmit={submit} autoComplete="off">
             <input
                 className="form-input"
-                type="number"
+                type="text"
                 placeholder="Amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                    const digitsOnly = e.target.value.replace(/\D/g, "");
+                    setAmount(digitsOnly)
+                }}
                 required
                 autoFocus
                 min={0}

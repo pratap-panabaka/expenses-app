@@ -23,7 +23,6 @@ export default function EditForm({
         e.preventDefault();
 
         if (amt === amount && desc === description) {
-            console.log("no change");
             onClose();
             return;
         }
@@ -45,10 +44,13 @@ export default function EditForm({
         <form className="flex flex-col gap-5" onSubmit={submit}>
             <input
                 className="form-input"
-                type="number"
+                type="text"
                 placeholder="Amount"
-                value={amt}
-                onChange={(e) => setAmt(e.target.value)}
+                value={amount}
+                onChange={(e) => {
+                    const digitsOnly = e.target.value.replace(/\D/g, "");
+                    setAmt(digitsOnly)
+                }}
                 required
                 autoFocus
                 min={0}

@@ -97,10 +97,10 @@ export default function ExpensesTable({
 
                             {timeStampVisible && (
                                 <>
-                                    <td className="border p-0 text-center align-middle">
+                                    <td className="border p-0 text-end talign-middle">
                                         {new Date(exp.created_at).toLocaleString()}
                                     </td>
-                                    <td className="border p-0 text-center align-middle">
+                                    <td className="border p-0 text-end align-middle">
                                         {new Date(exp.updated_at).toLocaleString()}
                                     </td>
                                 </>

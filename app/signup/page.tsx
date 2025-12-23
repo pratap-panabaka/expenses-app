@@ -14,8 +14,6 @@ const Page = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log("Signing up:", email);
-
         try {
             const res = await fetch("/api/signup", {
                 method: "POST",
