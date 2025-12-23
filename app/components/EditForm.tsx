@@ -46,14 +46,17 @@ export default function EditForm({
                 className="form-input"
                 type="text"
                 placeholder="Amount"
-                value={amount}
+                value={amt}
                 onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, "");
-                    setAmt(digitsOnly)
+                    let value = e.target.value
+                        .replace(/[^0-9.]/g, "")   // keep digits and dots
+                        .replace(/^\.*/, "")       // no dot at the start
+                        .replace(/(\..*)\./g, "$1"); // only one dot
+
+                    setAmt(value)
                 }}
                 required
                 autoFocus
-                min={0}
             />
 
             <input
