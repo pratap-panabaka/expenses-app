@@ -10,12 +10,11 @@ export default function EditForm({
     onClose,
 }: {
     id: number;
-    amount: number;
+    amount: string;
     description: string;
     onClose: () => void;
 }) {
-    // Store as string so the user can clear it without React forcing 0
-    const [amt, setAmt] = useState(String(amount));
+    const [amt, setAmt] = useState(amount);
     const [desc, setDesc] = useState(description);
 
     const editMutation = useEditExpense(id);
@@ -23,7 +22,7 @@ export default function EditForm({
     const submit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (Number(amt) === amount && desc === description) {
+        if (amt === amount && desc === description) {
             console.log("no change");
             onClose();
             return;
@@ -31,7 +30,7 @@ export default function EditForm({
 
         editMutation.mutate(
             {
-                amt: Number(amt), // convert here
+                amt,
                 desc,
             },
             {

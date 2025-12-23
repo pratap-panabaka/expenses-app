@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useAddExpense } from "../hooks/useAddExpense";
 
 export default function AddForm({ onClose }: { onClose: () => void }) {
-    const [amount, setAmount] = useState<number | "">("");
+    const [amount, setAmount] = useState<string>("");
     const [description, setDescription] = useState("");
 
     const addMutation = useAddExpense();
@@ -26,13 +26,13 @@ export default function AddForm({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <form className="flex flex-col gap-5" onSubmit={submit}>
+        <form className="flex flex-col gap-5" onSubmit={submit} autoComplete="off">
             <input
                 className="form-input"
                 type="number"
                 placeholder="Amount"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 required
                 autoFocus
                 min={0}

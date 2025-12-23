@@ -18,7 +18,7 @@ export default function ExpensesPage() {
 
     const [selected, setSelected] = useState<{
         id: number;
-        amount: number;
+        amount: string;
         description: string;
     } | null>(null);
 
@@ -42,7 +42,7 @@ export default function ExpensesPage() {
         setModalOpen(true);
     };
 
-    const openEdit = (id: number, amount: number, description: string) => {
+    const openEdit = (id: number, amount: string, description: string) => {
         setEditing(true);
         setSelected({ id, amount, description });
         setModalOpen(true);

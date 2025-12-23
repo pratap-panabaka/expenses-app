@@ -12,7 +12,7 @@ const Page = () => {
 
     // useActionState hook for async form handling
     const [error, submitAction, isPending] = useActionState(
-        async (_: any, formData: FormData) => {
+        async (_previouseState: unknown, formData: FormData) => {
             const res = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

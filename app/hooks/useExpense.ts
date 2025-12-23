@@ -21,7 +21,7 @@ export const useExpenses = (
             const normalized = data.map(exp => ({
                 ...exp,
                 id: Number(exp.id),
-                amount: Number(exp.amount),
+                amount: exp.amount,
                 description: String(exp.description),
             }));
 
@@ -33,8 +33,8 @@ export const useExpenses = (
                     case "idDes": return b.id - a.id;
                     case "descAsc": return a.description.localeCompare(b.description);
                     case "descDes": return b.description.localeCompare(a.description);
-                    case "amtAsc": return a.amount - b.amount;
-                    case "amtDes": return b.amount - a.amount;
+                    case "amtAsc": return Number(a.amount) - Number(b.amount);
+                    case "amtDes": return Number(b.amount) - Number(a.amount);
                     default: return 0;
                 }
             });

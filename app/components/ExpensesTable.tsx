@@ -19,7 +19,7 @@ export default function ExpensesTable({
     onDelete,
     timeStampVisible,
 }: {
-    onEdit: (id: number, amount: number, description: string) => void;
+    onEdit: (id: number, amount: string, description: string) => void;
     onDelete: (id: number) => void;
     timeStampVisible: boolean;
 }) {
@@ -34,7 +34,7 @@ export default function ExpensesTable({
     };
 
     const { data: displayedExpenses = [] } = useExpenses(getSortKey());
-    const total = displayedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const total = displayedExpenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
 
     const toggleSort = (field: "id" | "desc" | "amt") => {
         if (sortField === field) {

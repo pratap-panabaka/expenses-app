@@ -1,17 +1,17 @@
 export type Expense = {
     id: number | undefined;
-    amount: number;
+    amount: string;
     description: string;
     created_at: string | undefined;
     updated_at: string | undefined;
 };
 
 export type NewExpense = {
-    amount: number;
+    amount: string;
     description: string;
 };
 
 export type EditExpense = {
-    amt: number;
+    amt: string;
     desc: string;
 };
