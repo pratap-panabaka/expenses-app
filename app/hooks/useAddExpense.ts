@@ -23,28 +23,25 @@ export const useAddExpense = () => {
             return res.json();
         },
 
-        // ⭐ OPTIMISTIC UPDATE
         onMutate: async (newExpense) => {
             await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
             const previous = queryClient.getQueryData<Expense[]>(["expenses"]);
 
-            queryClient.setQueryData<Expense[]>(["expenses"], (old) =>
-                old
-                    ? [
-                        ...old,
-                        {
-                            id: undefined,
-                            amount: newExpense.amount,
-                            description: newExpense.description,
-                            created_at: undefined,
-                            updated_at: undefined,
-                        },
-                    ]
-                    : []
-            );
+            const optimisticId = Date.now() * -1;
 
-            return { previous };
+            queryClient.setQueryData<Expense[]>(["expenses"], (old = []) => [
+                ...old,
+                {
+                    id: optimisticId,
+                    amount: newExpense.amount,
+                    description: newExpense.description,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                },
+            ]);
+
+            return { previous, optimisticId };
         },
 
         // ⭐ TYPE-SAFE rollback
