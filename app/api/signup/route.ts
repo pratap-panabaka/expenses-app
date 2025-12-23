@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import db from "@/app/lib/db";
-import { SignJWT } from 'jose';
+import { SignJWT } from "jose";
 
 export const POST = async (req: Request) => {
   const { email, password } = await req.json();
@@ -15,41 +15,42 @@ export const POST = async (req: Request) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const stmt = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+  let userId: number;
 
-  let id;
   try {
-    const result = stmt.run(email, hashedPassword);
-    id = result.lastInsertRowid;
+    const [result]: any = await db.execute(
+      "INSERT INTO users (email, pw) VALUES (?, ?)",
+      [email, hashedPassword]
+    );
+
+    userId = result.insertId;
   } catch (err: any) {
-    if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
+    // MySQL duplicate key error
+    if (err.code === "ER_DUP_ENTRY") {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
       );
     }
-    throw err;
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to create user" },
+      { status: 500 }
+    );
   }
 
   const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
   const payload = {
     email,
-    id,
-  }
-
-  const protectedHeader = {
-    alg: 'HS256',
-    typ: 'JWT',
+    id: userId,
   };
 
   const jwt = await new SignJWT(payload)
-    .setProtectedHeader(protectedHeader)
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
-    .setExpirationTime('1d')
+    .setExpirationTime("1d")
     .sign(SECRET_KEY);
-
-  console.log(jwt);
 
   const res = NextResponse.json({
     message: "User signed up successfully",
@@ -59,9 +60,9 @@ export const POST = async (req: Request) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 1,
+    maxAge: 60 * 60 * 24, // 1 day
     path: "/",
   });
 
   return res;
-}
+};
