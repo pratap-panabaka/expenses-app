@@ -5,7 +5,6 @@ import { Expense } from "../types";
 
 const fetchExpenses = async (): Promise<Expense[]> => {
     const res = await fetch("/api/expenses");
-    console.log(res);
     if (!res.ok) throw new Error("Failed to fetch expenses");
     return res.json();
 };
