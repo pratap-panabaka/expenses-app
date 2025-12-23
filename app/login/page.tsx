@@ -1,47 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const Page = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
 
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
+    // useActionState hook for async form handling
+    const [error, submitAction, isPending] = useActionState(
+        async (_: any, formData: FormData) => {
             const res = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({
+                    email: formData.get("email"),
+                    password: formData.get("password"),
+                }),
             });
 
             const data = await res.json();
 
             if ("error" in data && typeof data.error === "string") {
-                setError(data.error);
-            } else {
-                setEmail("");
-                setPassword("");
-                setError(null);
-                router.push("/");
+                return data.error; // Return the error to show it in the UI
             }
-        } catch (err: unknown) {
-            // Type-safe error logging
-            if (err instanceof Error) {
-                console.log(err.message);
-                setError(err.message);
-            } else {
-                console.log(err);
-                setError("An unexpected error occurred");
-            }
-        }
-    };
+
+            // Clear inputs and redirect
+            setEmail("");
+            setPassword("");
+            router.push("/");
+            return null; // no error
+        },
+        null
+    );
 
     return (
         <main className="p-2 h-[100vh] bg-color-1 flex flex-col items-center justify-center">
@@ -50,27 +44,29 @@ const Page = () => {
             </h1>
             <form
                 className="max-w-2xl bg-white p-4 gap-4 mt-6 w-full flex flex-col rounded-lg items-center"
-                onSubmit={handleSubmit}
+                action={submitAction} // useActionState handles submission
             >
                 <input
                     className="form-input"
                     type="email"
+                    name="email"
                     placeholder="Email"
-                    onChange={(e) => setEmail(e.target.value)}
                     value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
                 <input
                     className="form-input"
                     type="password"
+                    name="password"
                     placeholder="Password"
-                    onChange={(e) => setPassword(e.target.value)}
                     value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     minLength={2}
                     required
                 />
-                <button type="submit" className="btn">
-                    Login
+                <button type="submit" className="btn" disabled={isPending}>
+                    {isPending ? "Logging in..." : "Login"}
                 </button>
                 {error && <p className="text-color-4">{error}</p>}
                 <p className="text-color-4 flex justify-end w-full">
