@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import formatLocalDateTime from "../lib/dateFormat";
 import { useExpenses } from "../hooks/useExpense";
 import intToWords from "../lib/intToWords";
 import { FaEdit } from "react-icons/fa";
@@ -99,10 +98,10 @@ export default function ExpensesTable({
                             {timeStampVisible && (
                                 <>
                                     <td className="border p-0 text-center align-middle">
-                                        {formatLocalDateTime(exp.created_at)}
+                                        {new Date(exp.created_at).toLocaleString()}
                                     </td>
                                     <td className="border p-0 text-center align-middle">
-                                        {formatLocalDateTime(exp.updated_at)}
+                                        {new Date(exp.created_at).toLocaleString()}
                                     </td>
                                 </>
                             )}
