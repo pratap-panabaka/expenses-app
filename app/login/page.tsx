@@ -45,15 +45,17 @@ const Page = () => {
             <form
                 className="max-w-2xl bg-white p-4 gap-4 mt-6 w-full flex flex-col rounded-lg items-center"
                 action={submitAction} // useActionState handles submission
+                autoComplete="off"
             >
                 <input
                     className="form-input"
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoFocus
                 />
                 <input
                     className="form-input"
@@ -68,7 +70,7 @@ const Page = () => {
                 <button type="submit" className="btn" disabled={isPending}>
                     {isPending ? "Logging in..." : "Login"}
                 </button>
-                {error && <p className="text-color-4">{error}</p>}
+                {error && !isPending && <p className="text-red-500">{error}</p>}
                 <p className="text-color-4 flex justify-end w-full">
                     Want to Sign Up?
                     <span>
