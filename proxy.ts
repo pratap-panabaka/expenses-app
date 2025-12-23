@@ -8,32 +8,34 @@ export default async function proxy(req: NextRequest) {
 
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
+  // Redirect logged-in users away from login/signup
   if (url.pathname === "/login" || url.pathname === "/signup") {
     if (token) {
       try {
         const { payload } = await jwtVerify(token, secret, {
-          algorithms: ['HS256'],
-          maxTokenAge: '1d',
+          algorithms: ["HS256"],
+          maxTokenAge: "1d",
         });
         if (payload) {
           console.log(payload);
           return NextResponse.redirect(new URL("/", req.url));
         }
-      } catch (err) {
-
+      } catch {
+        // no-op, token invalid or expired
       }
     }
   }
 
+  // Protect other routes
   if (url.pathname !== "/login" && url.pathname !== "/signup") {
     if (!token) return NextResponse.redirect(new URL("/login", req.url));
     try {
       const { payload } = await jwtVerify(token, secret, {
-        algorithms: ['HS256'],
-        maxTokenAge: '1d',
+        algorithms: ["HS256"],
+        maxTokenAge: "1d",
       });
       if (!payload) return NextResponse.redirect(new URL("/login", req.url));
-    } catch (err) {
+    } catch {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }

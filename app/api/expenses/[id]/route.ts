@@ -1,139 +1,148 @@
 import db from "@/app/lib/db";
-import { jwtVerify } from "jose";
+import { jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse, NextRequest } from "next/server";
+import type { RowDataPacket, ResultSetHeader } from "mysql2";
+
+/* =======================
+   Types
+======================= */
+
+type ExpenseRow = RowDataPacket & {
+    amount: number;
+    description: string;
+};
+
+type AuthPayload = JWTPayload & {
+    id: number;
+};
+
+/* =======================
+   Helpers
+======================= */
+
+const getUserIdFromToken = async (): Promise<number | null> => {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) return null;
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+    try {
+        const { payload } = await jwtVerify<AuthPayload>(token, secret, {
+            algorithms: ["HS256"],
+            maxTokenAge: "1d",
+        });
+
+        if (typeof payload.id !== "number") return null;
+
+        return payload.id;
+    } catch {
+        return null;
+    }
+};
+
+/* =======================
+   GET – Fetch single expense
+======================= */
 
 export const GET = async (
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) => {
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
+    const { id } = await params;
 
-    if (!token) {
+    const userId = await getUserIdFromToken();
+    if (!userId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const [rows] = await db.query<ExpenseRow[]>(
+        "SELECT amount, description FROM expenses WHERE user_id = ? AND id = ? LIMIT 1",
+        [userId, id]
+    );
 
-    let payload;
-    try {
-        const verified = await jwtVerify(token, secret, {
-            algorithms: ['HS256'],
-            maxTokenAge: '1d',
-        });
-        payload = verified.payload;
-    } catch (err) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (rows.length === 0) {
+        return NextResponse.json({ error: "Expense not found" }, { status: 404 });
     }
 
-    const userId = payload.id;
-
-    // Fetch expenses
-    const stmt = db.prepare("SELECT amount, description FROM expenses WHERE user_id = ? AND id = ?");
-    const expense = stmt.get(userId, id);
-
-    return NextResponse.json(expense);
+    return NextResponse.json(rows[0]);
 };
+
+/* =======================
+   PATCH – Update expense
+======================= */
 
 export const PATCH = async (
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) => {
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const { id } = await params;
 
-    if (!token) {
+    const userId = await getUserIdFromToken();
+    if (!userId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-
-    let payload;
-    try {
-        const verified = await jwtVerify(token, secret, {
-            algorithms: ["HS256"],
-            maxTokenAge: "1d",
-        });
-        payload = verified.payload;
-    } catch (err) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    const userId = payload.id;
-
-    let body: { desc?: string; amt?: number };
+    let body: { desc?: unknown; amt?: unknown };
     try {
         body = await req.json();
-    } catch (err) {
+    } catch {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
     const { desc, amt } = body;
 
-    if (!desc || typeof desc !== "string") {
-        return NextResponse.json({ error: "Description is required" }, { status: 400 });
-    }
-
-    if (amt === undefined || typeof amt !== "number" || amt < 0) {
-        return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
-    }
-
-    try {
-        const stmt = db.prepare(
-            "UPDATE expenses SET description = ?, amount = ? WHERE user_id = ? AND id = ?"
+    if (typeof desc !== "string" || desc.trim() === "") {
+        return NextResponse.json(
+            { error: "Description is required" },
+            { status: 400 }
         );
-        const result = stmt.run(desc, amt, userId, id);
-
-        return NextResponse.json({ status: 200 });
-    } catch (err: any) {
-        console.error(err);
-        return NextResponse.json({ error: "Failed to create expense" }, { status: 500 });
     }
+
+    if (typeof amt !== "number" || amt < 0) {
+        return NextResponse.json(
+            { error: "Amount must be a positive number" },
+            { status: 400 }
+        );
+    }
+
+    const [result] = await db.execute<ResultSetHeader>(
+        "UPDATE expenses SET description = ?, amount = ? WHERE user_id = ? AND id = ?",
+        [desc, amt, userId, id]
+    );
+
+    if (result.affectedRows === 0) {
+        return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ status: 200 });
 };
+
+/* =======================
+   DELETE – Delete expense
+======================= */
 
 export const DELETE = async (
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) => {
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const { id } = await params;
 
-    if (!token) {
+    const userId = await getUserIdFromToken();
+    if (!userId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const [result] = await db.execute<ResultSetHeader>(
+        "DELETE FROM expenses WHERE user_id = ? AND id = ?",
+        [userId, id]
+    );
 
-    let payload;
-    try {
-        const verified = await jwtVerify(token, secret, {
-            algorithms: ["HS256"],
-            maxTokenAge: "1d",
-        });
-        payload = verified.payload;
-    } catch (err) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (result.affectedRows === 0) {
+        return NextResponse.json({ error: "Expense not found" }, { status: 404 });
     }
 
-    const userId = payload.id;
-
-    try {
-        const stmt = db.prepare(
-            "DELETE FROM expenses WHERE user_id = ? AND id = ?"
-        );
-        const result = stmt.run(userId, id);
-        console.log(result);
-
-        return NextResponse.json({ status: 200 });
-    } catch (err: any) {
-        console.error(err);
-        return NextResponse.json({ error: "Failed to create expense" }, { status: 500 });
-    }
-}
+    return NextResponse.json({ status: 200 });
+};

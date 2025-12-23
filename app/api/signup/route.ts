@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import db from "@/app/lib/db";
 import { SignJWT } from "jose";
+import type { ResultSetHeader } from "mysql2";
 
 export const POST = async (req: Request) => {
   const { email, password } = await req.json();
@@ -18,20 +19,27 @@ export const POST = async (req: Request) => {
   let userId: number;
 
   try {
-    const [result]: any = await db.execute(
+    // Use ResultSetHeader instead of any
+    const [result] = await db.execute<ResultSetHeader>(
       "INSERT INTO users (email, pw) VALUES (?, ?)",
       [email, hashedPassword]
     );
 
     userId = result.insertId;
-  } catch (err: any) {
-    // MySQL duplicate key error
-    if (err.code === "ER_DUP_ENTRY") {
+  } catch (err: unknown) {
+    // Type-safe error handling
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code?: string }).code === "ER_DUP_ENTRY"
+    ) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
       );
     }
+
     console.error(err);
     return NextResponse.json(
       { error: "Failed to create user" },

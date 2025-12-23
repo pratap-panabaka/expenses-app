@@ -3,25 +3,38 @@ import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
 
-type User = {
-    id: number,
-    email: string,
-    password: string,
-}
+import type { RowDataPacket } from "mysql2";
+
+type User = RowDataPacket & {
+    id: number;
+    email: string;
+    password: string;
+};
 
 export const POST = async (req: Request) => {
     const { email, password } = await req.json();
 
-    const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
-    const user = stmt.get(email) as User;
+    // mysql2 returns [rows, fields]
+    const [rows] = await db.query<User[]>(
+        "SELECT * FROM users WHERE email = ? LIMIT 1",
+        [email]
+    );
 
-    try {
-        const check = await bcrypt.compare(password, user.password);
-        if (!check) {
-            return NextResponse.json({ error: "Invalid password" });
-        }
-    } catch (error) {
-        return NextResponse.json({ error: "User is not registerd yet" });
+    if (rows.length === 0) {
+        return NextResponse.json(
+            { error: "User is not registered yet" },
+            { status: 401 }
+        );
+    }
+
+    const user = rows[0];
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+        return NextResponse.json(
+            { error: "Invalid password" },
+            { status: 401 }
+        );
     }
 
     const res = NextResponse.json({
@@ -30,29 +43,22 @@ export const POST = async (req: Request) => {
 
     const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
-    const payload = {
-        email,
+    const jwt = await new SignJWT({
+        email: user.email,
         id: user.id,
-    }
-
-    const protectedHeader = {
-        alg: 'HS256',
-        typ: 'JWT',
-    };
-
-    const jwt = await new SignJWT(payload)
-        .setProtectedHeader(protectedHeader)
+    })
+        .setProtectedHeader({ alg: "HS256", typ: "JWT" })
         .setIssuedAt()
-        .setExpirationTime('1d')
+        .setExpirationTime("1d")
         .sign(SECRET_KEY);
 
     res.cookies.set("token", jwt, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 1,
+        maxAge: 60 * 60 * 24,
         path: "/",
     });
 
     return res;
-}
+};

@@ -1,38 +1,62 @@
 import db from "@/app/lib/db";
-import { jwtVerify } from "jose";
+import { jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-/* ===================== GET ===================== */
-export const GET = async () => {
+/* =======================
+   Types
+======================= */
+
+type ExpenseRow = RowDataPacket & {
+    id: number;
+    user_id: number;
+    description: string;
+    amount: number;
+};
+
+type AuthPayload = JWTPayload & {
+    id: number;
+};
+
+/* =======================
+   Helper – get userId from JWT
+======================= */
+
+const getUserIdFromToken = async (): Promise<number | null> => {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!token) return null;
 
-    let payload: any;
     try {
-        const verified = await jwtVerify(token, secret, {
+        const { payload } = await jwtVerify<AuthPayload>(token, secret, {
             algorithms: ["HS256"],
             maxTokenAge: "1d",
         });
-        payload = verified.payload;
+
+        if (typeof payload.id !== "number") return null;
+        return payload.id;
     } catch {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return null;
+    }
+};
+
+/* ===================== GET ===================== */
+
+export const GET = async () => {
+    const userId = await getUserIdFromToken();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = payload.id;
-
     try {
-        const [rows] = await db.execute(
+        const [rows] = await db.execute<ExpenseRow[]>(
             "SELECT * FROM expenses WHERE user_id = ?",
             [userId]
         );
-
         return NextResponse.json(rows);
     } catch (err) {
         console.error(err);
@@ -44,28 +68,14 @@ export const GET = async () => {
 };
 
 /* ===================== POST ===================== */
-export const POST = async (req: Request) => {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
 
-    if (!token) {
+export const POST = async (req: Request) => {
+    const userId = await getUserIdFromToken();
+    if (!userId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let payload: any;
-    try {
-        const verified = await jwtVerify(token, secret, {
-            algorithms: ["HS256"],
-            maxTokenAge: "1d",
-        });
-        payload = verified.payload;
-    } catch {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    const userId = payload.id;
-
-    let body: { description?: string; amount?: number };
+    let body: { description?: unknown; amount?: unknown };
     try {
         body = await req.json();
     } catch {
@@ -74,7 +84,7 @@ export const POST = async (req: Request) => {
 
     const { description, amount } = body;
 
-    if (!description || typeof description !== "string") {
+    if (typeof description !== "string" || description.trim() === "") {
         return NextResponse.json(
             { error: "Description is required" },
             { status: 400 }
@@ -89,14 +99,14 @@ export const POST = async (req: Request) => {
     }
 
     try {
-        const [result]: any = await db.execute(
+        const [result] = await db.execute<ResultSetHeader>(
             "INSERT INTO expenses (user_id, description, amount) VALUES (?, ?, ?)",
             [userId, description, amount]
         );
 
         const expenseId = result.insertId;
 
-        const [rows]: any = await db.execute(
+        const [rows] = await db.execute<ExpenseRow[]>(
             "SELECT * FROM expenses WHERE id = ?",
             [expenseId]
         );

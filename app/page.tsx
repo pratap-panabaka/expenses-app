@@ -6,7 +6,6 @@ import ExpensesPage from './components/ExpensesPage';
 import Modal from "./components/Modal";
 import { IoBook } from "react-icons/io5";
 import { VscSignOut } from "react-icons/vsc";
-import Link from "next/link";
 
 const Home = () => {
   const [email, setEmail] = useState<string | null>(null);

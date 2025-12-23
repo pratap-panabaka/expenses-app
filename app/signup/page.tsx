@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const Page = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -22,8 +22,10 @@ const Page = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
+
             const data = await res.json();
-            if (data.error) {
+
+            if ("error" in data && typeof data.error === "string") {
                 setError(data.error);
             } else {
                 setEmail("");
@@ -31,8 +33,15 @@ const Page = () => {
                 setError(null);
                 router.push("/");
             }
-        } catch (error: any) {
-            console.log(error);
+        } catch (err: unknown) {
+            // Type-safe error handling
+            if (err instanceof Error) {
+                console.log(err.message);
+                setError(err.message);
+            } else {
+                console.log(err);
+                setError("An unexpected error occurred");
+            }
         }
     };
 
@@ -62,11 +71,19 @@ const Page = () => {
                     minLength={2}
                     required
                 />
-                <button type="submit" className="btn">Sign Up</button>
+                <button type="submit" className="btn">
+                    Sign Up
+                </button>
                 {error && <p className="text-color-4">{error}</p>}
-                <p className="text-color-4 flex justify-end w-full">Want to Login?<span>&nbsp;<Link href="/login" className="text-color-3">
-                    Go to Login Page
-                </Link></span></p>
+                <p className="text-color-4 flex justify-end w-full">
+                    Want to Login?
+                    <span>
+                        &nbsp;
+                        <Link href="/login" className="text-color-3">
+                            Go to Login Page
+                        </Link>
+                    </span>
+                </p>
             </form>
         </main>
     );
