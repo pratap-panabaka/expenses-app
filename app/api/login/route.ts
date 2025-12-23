@@ -8,7 +8,7 @@ import type { RowDataPacket } from "mysql2";
 type User = RowDataPacket & {
     id: number;
     email: string;
-    password: string;
+    pw: string;
 };
 
 export const POST = async (req: Request) => {
@@ -29,7 +29,7 @@ export const POST = async (req: Request) => {
 
     const user = rows[0];
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, user.pw);
     if (!isValid) {
         return NextResponse.json(
             { error: "Invalid password" },
