@@ -1,16 +1,22 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Expense, EditExpense } from "../types";
+import type { Expense, EditExpense } from "../types";
 
-export const useEditExpense = (id: number) => {
+type EditExpenseContext = {
+    previousExpenses?: Expense[];
+};
+
+const EXPENSES_QUERY_KEY = ["expenses"] as const;
+
+export function useEditExpense(id: number) {
     const queryClient = useQueryClient();
 
     return useMutation<
-        Expense,                          // returned data
-        Error,                            // error
-        EditExpense,                      // variables
-        { previous: Expense[] | undefined } // context
+        Expense,              // API response
+        Error,                // Error
+        EditExpense,          // Variables
+        EditExpenseContext    // Context
     >({
         mutationFn: async (payload) => {
             const res = await fetch(`/api/expenses/${id}`, {
@@ -26,38 +32,56 @@ export const useEditExpense = (id: number) => {
             return res.json();
         },
 
-        // ✅ OPTIMISTIC UPDATE
+        // ⭐ Optimistic update
         onMutate: async (update) => {
-            await queryClient.cancelQueries({ queryKey: ["expenses"] });
+            await queryClient.cancelQueries({ queryKey: EXPENSES_QUERY_KEY });
 
-            const previous = queryClient.getQueryData<Expense[]>(["expenses"]);
+            const previousExpenses =
+                queryClient.getQueryData<Expense[]>(EXPENSES_QUERY_KEY);
 
-            queryClient.setQueryData<Expense[]>(["expenses"], (old) =>
-                old
-                    ? old.map((exp) =>
-                        exp.id === id
+            queryClient.setQueryData<Expense[]>(
+                EXPENSES_QUERY_KEY,
+                (old = []) =>
+                    old.map((expense) =>
+                        expense.id === id
                             ? {
-                                ...exp,
+                                ...expense,
                                 amount: update.amt,
                                 description: update.desc,
-                                updated_at: new Date().toISOString(), // ✅ string
+                                updated_at: new Date().toISOString(),
                             }
-                            : exp
+                            : expense
                     )
-                    : old
             );
 
-            return { previous };
+            return { previousExpenses };
         },
 
-        onError: (_err, _vars, ctx) => {
-            if (ctx?.previous) {
-                queryClient.setQueryData(["expenses"], ctx.previous);
+        // ⭐ Rollback on error
+        onError: (_error, _vars, ctx) => {
+            if (ctx?.previousExpenses) {
+                queryClient.setQueryData(
+                    EXPENSES_QUERY_KEY,
+                    ctx.previousExpenses
+                );
             }
+        },
+
+        // ⭐ Replace optimistic data with server response
+        onSuccess: (updatedExpense) => {
+            queryClient.setQueryData<Expense[]>(
+                EXPENSES_QUERY_KEY,
+                (old = []) =>
+                    old.map((expense) =>
+                        expense.id === updatedExpense.id
+                            ? updatedExpense
+                            : expense
+                    )
+            );
         },
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["expenses"] });
-        },
+        }
     });
-};
+}

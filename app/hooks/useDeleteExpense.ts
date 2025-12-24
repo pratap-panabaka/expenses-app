@@ -1,42 +1,62 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Expense } from "../types";
+import type { Expense } from "../types";
 
-export const useDeleteExpense = () => {
+type DeleteExpenseContext = {
+    previousExpenses?: Expense[];
+};
+
+const EXPENSES_QUERY_KEY = ["expenses"] as const;
+
+export function useDeleteExpense() {
     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: async (id: number) => {
+    return useMutation<
+        number,                // returned value (deleted id)
+        Error,                 // error
+        number,                // variables (id)
+        DeleteExpenseContext   // context
+    >({
+        mutationFn: async (id) => {
             const res = await fetch(`/api/expenses/${id}`, {
                 method: "DELETE",
             });
 
-            if (!res.ok) throw new Error("Failed to delete expense");
+            if (!res.ok) {
+                throw new Error("Failed to delete expense");
+            }
+
             return id;
         },
 
-        // ⭐ Optimistic update
+        // ⭐ Optimistic delete
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: ["expenses"] });
+            await queryClient.cancelQueries({ queryKey: EXPENSES_QUERY_KEY });
 
-            const previous = queryClient.getQueryData<Expense[]>(["expenses"]);
+            const previousExpenses =
+                queryClient.getQueryData<Expense[]>(EXPENSES_QUERY_KEY);
 
-            queryClient.setQueryData<Expense[]>(["expenses"], (old) =>
-                old ? old.filter((exp) => exp.id !== id) : []
+            queryClient.setQueryData<Expense[]>(
+                EXPENSES_QUERY_KEY,
+                (old = []) => old.filter((expense) => expense.id !== id)
             );
 
-            return { previous };
+            return { previousExpenses };
         },
 
-        onError: (_err, _id, ctx) => {
-            if (ctx?.previous) {
-                queryClient.setQueryData(["expenses"], ctx.previous);
+        // ⭐ Rollback on error
+        onError: (_error, _id, ctx) => {
+            if (ctx?.previousExpenses) {
+                queryClient.setQueryData(
+                    EXPENSES_QUERY_KEY,
+                    ctx.previousExpenses
+                );
             }
         },
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["expenses"] });
-        },
+        }
     });
-};
+}
