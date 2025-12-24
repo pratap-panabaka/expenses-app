@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 export default async function proxy(req: NextRequest) {
@@ -17,7 +16,6 @@ export default async function proxy(req: NextRequest) {
           maxTokenAge: "1d",
         });
         if (payload) {
-          console.log(payload);
           return NextResponse.redirect(new URL("/", req.url));
         }
       } catch {

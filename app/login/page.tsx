@@ -80,6 +80,9 @@ const Page = () => {
                         </Link>
                     </span>
                 </p>
+                <p className="text-blue-500 text-xs sm:text-sm md:text-md lg:text-lg">
+                    If you want to test the app use 'guest' as both email and password
+                </p>
             </form>
         </main>
     );

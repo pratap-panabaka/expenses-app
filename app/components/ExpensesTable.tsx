@@ -2,16 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useExpenses } from "../hooks/useExpense";
-import intToWords from "../lib/intToWords";
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin4Fill } from "react-icons/ri";
-import { Saira_Stencil_One } from 'next/font/google';
-
-const spaceGrotesk = Saira_Stencil_One({
-    subsets: ['latin'],
-    variable: "--font-sg",
-    weight: '400',
-});
+import intToWords from "../lib/intToWords";
 
 export default function ExpensesTable({
     onEdit,
@@ -62,10 +55,10 @@ export default function ExpensesTable({
     }, []);
 
     return (
-        <div className="w-full justify-center flex items-start">
-            <table className="w-full text-color-4 max-w-6xl">
-                <thead className="bg-color-4 text-color-1 sticky top-[164px]">
-                    <tr>
+        <>
+            <table className="w-full text-color-4 text-xs sm:text-sm md:text-lg max-w-6xl border border-2 mx-auto">
+                <thead className="bg-color-4 text-white">
+                    <tr className="border">
                         <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("id")}>ID</th>
                         <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("desc")}>Description</th>
                         <th className="cursor-pointer hover:text-white" onClick={() => toggleSort("amt")}>Amount</th>
@@ -80,27 +73,27 @@ export default function ExpensesTable({
                 </thead>
                 <tbody>
                     {displayedExpenses.map((exp) => (
-                        <tr key={exp.id} className="odd:bg-color-5/90 even:bg-color-5 text-white">
+                        <tr key={exp.id} className="odd:bg-gray-500/10 even:bg-gray-500/20">
                             <td className="border px-2 text-right align-middle">{exp.id}</td>
                             <td className="border px-2 align-middle">{exp.description}</td>
                             <td className="border px-2 text-right align-middle">{exp.amount}</td>
                             <td className="border">
-                                <div className="flex justify-center items-center gap-2 h-full">
+                                <div className="flex justify-center items-center gap-2 h-full text-xs sm:text-sm md:text-md lg:text-lg">
                                     <button onClick={() => onEdit(exp.id, exp.amount, exp.description)}>
-                                        <FaEdit className="cursor-pointer hover:text-blue-400" size={20} />
+                                        <FaEdit className="cursor-pointer hover:text-blue-400" />
                                     </button>
                                     <button onDoubleClick={() => onDelete(exp.id)}>
-                                        <RiDeleteBin4Fill className="cursor-pointer hover:text-red-400" size={20} />
+                                        <RiDeleteBin4Fill className="cursor-pointer hover:text-red-400" />
                                     </button>
                                 </div>
                             </td>
 
                             {timeStampVisible && (
                                 <>
-                                    <td className="border p-0 text-end talign-middle">
+                                    <td className="border p-0 text-end talign-middle pe-2">
                                         {new Date(exp.created_at).toLocaleString()}
                                     </td>
-                                    <td className="border p-0 text-end align-middle">
+                                    <td className="border p-0 text-end align-middle pe-2">
                                         {new Date(exp.updated_at).toLocaleString()}
                                     </td>
                                 </>
@@ -109,10 +102,7 @@ export default function ExpensesTable({
                     ))}
                 </tbody>
             </table >
-            <div className={`bg-black 
-            h-[36px] bg-color-4 flex justify-center items-center
-            text-color-1 fixed bottom-0 w-full text-xs sm:text-lg ${spaceGrotesk.className}`}
-            >Total is &nbsp;<span className={"text-color-3"}>{intToWords(total)} &nbsp;</span><span>{total} {currency}</span></div >
-        </div>
+            <div className="text-center text-sm sm:text-md md:text-lg lg:text-xl text-color-4 font-bold">Total is {total.toFixed(2)} {currency}</div>
+        </>
     );
 }

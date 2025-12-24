@@ -35,11 +35,11 @@
 ----------------------------------------- */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-x-2 cursor-pointer font-bold uppercase border border-transparent rounded-lg focus:outline-none transition-colors duration-200 bg-color-4 text-white hover:bg-color-3 text-18 py-1 px-2;
+    @apply p-1 sm:p-2 rounded text-xs sm:text-sm md:text-lg inline-flex items-center justify-center cursor-pointer border border-transparent focus:outline-none transition-colors duration-200 bg-color-4 text-white hover:bg-color-3;
   }
 
   .form-input {
-    @apply appearance-none w-full p-2 text-color-4 caret-color-4 border-b border-t-0 border-l-0 border-r-0 border-color-4 rounded-none focus:outline-none;
+    @apply p-1 text-xs sm:text-sm md:text-lg appearance-none w-full text-color-4 caret-color-4 border-b border-color-4 rounded-none focus:outline-none;
   }
 
   /* Remove spinner arrows for number inputs */

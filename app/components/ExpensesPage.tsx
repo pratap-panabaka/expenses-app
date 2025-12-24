@@ -53,12 +53,20 @@ export default function ExpensesPage() {
     };
 
     return (
-        <main className="min-h-[calc(100vh-64px)] bg-color-1">
-            <div className="sticky top-[64px] z-50 h-[100px] flex flex-col justify-center bg-color-1 items-center">
-                <div className="flex items-baseline justify-center gap-5">
-                    <h1 className="text-2xl font-bold text-color-4">EXPENSES</h1>
+        <main className="min-h-[calc(100vh-(3rem+2rem))] p-2">
+            <h1 className="font-bold text-color-4 text-center text-md sm:text-lg md:text-xl">EXPENSES APP</h1>
+            <div className="flex flex-col justify-center items-center">
+                <div className="w-full text-center text-red-500 p-1 text-xs sm:text-sm md:text-lg">
+                    Please note that this App is just for demo purpose,
+                    Even though you are able to sign up and store the data,
+                    the database will be cleared regularly.
+                </div>
+                <div className="w-full text-center text-blue-500 p-1 text-xs sm:text-sm md:text-lg">
+                    To delete an expense, please double tap the delete icon, there will be no confirmation.
+                </div>
+                <div className="flex items-baseline justify-center gap-5 text-xs sm:text-sm md:text-lg">
                     <button onClick={openAdd} className="text-blue-500 cursor-pointer font-bold text-baseline">
-                        ADD EXPENSE
+                        Add Expense
                     </button>
                     <button
                         className="text-blue-500 cursor-pointer font-bold"
@@ -66,11 +74,6 @@ export default function ExpensesPage() {
                     >
                         {timeStampVisible ? "Hide Time Stamps" : "Show Time Stamps"}
                     </button>
-                </div>
-                <div className="w-full text-center text-red-500 p-1 text-sm">
-                    Please note that this App is just for demo purpose,
-                    Even though you are able to sign up and store the data,
-                    the database will be cleared regularly.
                 </div>
             </div>
 

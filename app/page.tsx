@@ -57,20 +57,20 @@ const Home = () => {
 
   return (
     <>
-      <header className="bg-color-4 w-full flex items-center justify-center h-[64px] sticky top-0 z-50">
+      <header className="bg-color-4 w-full flex items-center justify-center h-[3rem] sticky top-0 z-50">
         <nav className="flex items-center justify-between px-5 max-w-6xl w-full">
-          <a href="https://pratap-panabaka.vercel.app" target="_blank" rel="noopener noreferrer">
+          <a href="https://pratap-panabaka.in" target="_blank" rel="noopener noreferrer">
             <IoBook className="text-color-1" size={32} />
           </a>
           <div className="flex gap-2 items-center">
-            <p className="text-white">{email}</p>
+            <p className="text-white text-lg">{email}</p>
             <button onClick={() => setModalOpen(true)} className="btn"><VscSignOut size={32} /></button>
           </div>
         </nav>
       </header>
       <ExpensesPage />
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-        <div className="bg-white flex flex-col items-center justify-center gap-2">
+        <div className="bg-white flex flex-col items-center justify-center gap-2 text-xs sm:text-sm md:text-lg">
           Are you sure to sign out?
           <button onClick={handleSignout} className="btn">Sign Out</button>
         </div>
