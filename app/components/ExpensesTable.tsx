@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useExpenses } from "../hooks/useExpense";
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin4Fill } from "react-icons/ri";
-import intToWords from "../lib/intToWords";
 
 export default function ExpensesTable({
     onEdit,

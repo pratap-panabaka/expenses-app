@@ -53,16 +53,16 @@ export default function ExpensesPage() {
     };
 
     return (
-        <main className="min-h-[calc(100vh-(3rem+2rem))] p-2">
+        <main className="min-h-[calc(100vh-(3rem))] p-2">
             <h1 className="font-bold text-color-4 text-center text-md sm:text-lg md:text-xl">EXPENSES APP</h1>
-            <div className="flex flex-col justify-center items-center">
-                <div className="w-full text-center text-red-500 p-1 text-xs sm:text-sm md:text-lg">
-                    Please note that this App is just for demo purpose,
+            <div className="flex flex-col justify-center items-center max-w-6xl mx-auto">
+                <div className="w-full text-left text-red-500 p-1 text-xs sm:text-sm md:text-lg">
+                    1. Please note that this App is just for demo purpose,
                     Even though you are able to sign up and store the data,
                     the database will be cleared regularly.
                 </div>
-                <div className="w-full text-center text-blue-500 p-1 text-xs sm:text-sm md:text-lg">
-                    To delete an expense, please double tap the delete icon, there will be no confirmation.
+                <div className="w-full items-center text-left text-green-500 p-1 text-xs sm:text-sm md:text-lg">
+                    <span>2. To delete an expense, please double tap the delete icon, there will be no confirmation.</span>
                 </div>
                 <div className="flex items-baseline justify-center gap-5 text-xs sm:text-sm md:text-lg">
                     <button onClick={openAdd} className="text-blue-500 cursor-pointer font-bold text-baseline">

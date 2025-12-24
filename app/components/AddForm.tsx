@@ -33,7 +33,7 @@ export default function AddForm({ onClose }: { onClose: () => void }) {
                 placeholder="Amount"
                 value={amount}
                 onChange={(e) => {
-                    let value = e.target.value
+                    const value = e.target.value
                         .replace(/[^0-9.]/g, "")   // keep digits and dots
                         .replace(/^\.*/, "")       // no dot at the start
                         .replace(/(\..*)\./g, "$1"); // only one dot

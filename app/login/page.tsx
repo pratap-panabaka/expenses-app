@@ -81,7 +81,7 @@ const Page = () => {
                     </span>
                 </p>
                 <p className="text-blue-500 text-xs sm:text-sm md:text-md lg:text-lg">
-                    If you want to test the app use 'guest' as both email and password
+                    If you want to test this web app, use <span className="text-green-500">guest</span> as both email and password above and Login
                 </p>
             </form>
         </main>
