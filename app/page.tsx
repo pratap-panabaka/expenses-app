@@ -58,11 +58,12 @@ const Home = () => {
   return (
     <>
       <header className="bg-color-4 w-full flex items-center justify-center h-[3rem] sticky top-0 z-50">
-        <nav className="flex items-center justify-between px-5 max-w-6xl w-full">
+        <nav className="flex items-center justify-between px-2 max-w-6xl w-full">
           <a href="https://pratap-panabaka.in" target="_blank" rel="noopener noreferrer">
-            <Image src="./coder.svg" alt="pratap panababak - dev" width={40} height={40} />
+            <Image src="./coder.svg" alt="pratap panababak - dev" width={50} height={50} />
           </a>
-          <div className="flex gap-2 items-center">
+          <h1 className="hidden min-[475px]:grid font-bold text-white text-center text-20">EXPENSES APP</h1>
+          <div className="flex items-center">
             <p className="text-white text-lg">{email}</p>
             <button onClick={() => setModalOpen(true)} className="btn"><VscSignOut size={32} /></button>
           </div>

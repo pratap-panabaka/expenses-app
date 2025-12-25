@@ -45,7 +45,7 @@ const Page = () => {
 
     return (
         <main className="p-2 h-[100vh] bg-color-1 flex flex-col items-center justify-center">
-            <h1 className="text-14 sm:text-18 md:text-24 lg:text-28 text-color-4 font-bold">
+            <h1 className="text-20 sm:text-24 md:text-28 lg:text-32 text-color-4 font-bold">
                 Expenses App
             </h1>
             <form
@@ -73,7 +73,7 @@ const Page = () => {
                     Sign Up
                 </button>
                 {error && <p className="text-color-4">{error}</p>}
-                <p className="text-color-4 flex justify-end w-full">
+                <p className="text-color-4 flex justify-end w-full text-xs sm:text-sm md:text-md lg:text-lg">
                     Want to Login?
                     <span>
                         &nbsp;
